@@ -13,7 +13,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className="bg-black text-white min-h-screen antialiased">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-black text-white min-h-screen antialiased" style={{ fontFamily: "'Outfit', sans-serif" }}>
         {children}
       </body>
     </html>
