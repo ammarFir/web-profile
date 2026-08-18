@@ -25,7 +25,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@keyframes spin-slow {
+@keyframes spin-cw {
   from {
     transform: rotate(0deg);
   }
@@ -33,4 +33,26 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+@keyframes spin-ccw {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.ring-spin-cw {
+  animation-name: spin-cw;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.ring-spin-ccw {
+  animation-name: spin-ccw;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }

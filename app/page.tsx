@@ -37,44 +37,60 @@ export default function Home() {
   return (
     <main
       onMouseMove={handleMouseMove}
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden cursor-default"
+      className="relative min-h-screen overflow-hidden cursor-default"
     >
+      {/* Split background: putih di kiri, abu di kanan (mengikuti pembagian grid) */}
+      <div className="absolute inset-0 -z-10 hidden md:grid md:grid-cols-2">
+        <div className="bg-white" />
+        <div className="bg-neutral-800" />
+      </div>
+      <div className="absolute inset-0 -z-10 md:hidden bg-neutral-800" />
+
       {/* Efek Glow */}
       <div className="absolute w-[600px] h-[600px] bg-cyan-500 rounded-full blur-[200px] opacity-30 animate-pulse -top-40 -right-40"></div>
       <div className="absolute w-[500px] h-[500px] bg-purple-600 rounded-full blur-[200px] opacity-20 animate-pulse -bottom-40 -left-40"></div>
 
-      {/* Kiri: Teks */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center">
-        <AnimatedText delay={0.1}>
-          <p className="text-sm md:text-base font-medium tracking-[0.2em] uppercase mb-4 flex items-center gap-2" style={gradientStyle}>
-            <PulseDot />
-            Web Developer
-          </p>
-        </AnimatedText>
+      {/* Spiral Text - anchored to top-right corner of the page, bleeding off both edges */}
+     {/* Spiral Text - centered within the right (gray) half, with slight bleed off top/right edges */}
+<div className="absolute inset-y-0 right-0 w-full md:w-1/2 pointer-events-none flex items-center justify-center overflow-hidden">
+  <div className="relative w-[500px] h-[500px] md:w-[800px] md:h-[800px] -translate-y-6 md:translate-x-0 md:-translate-y-0">
+    <SpiralText   ringCount={22}/>
+  </div>
+</div>
 
-        <AnimatedText delay={0.2}>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight" style={gradientStyle}>
-            Halo, Saya Ammar Fir
-          </h1>
-        </AnimatedText>
+      {/* Grid 2 kolom: kiri teks, kanan spacer kosong */}
+      <div className="relative z-10 min-h-screen grid grid-cols-1 md:grid-cols-2 items-center px-6 md:px-12 lg:px-20 gap-10">
+        {/* Kiri: Teks */}
+        <div className="flex flex-col items-start justify-center text-left">
+          <AnimatedText delay={0.1}>
+            <p className="text-sm md:text-base font-medium tracking-[0.2em] uppercase mb-4 flex items-center gap-2" style={gradientStyle}>
+              <PulseDot />
+              Web Developer
+            </p>
+          </AnimatedText>
 
-        <AnimatedText delay={0.3}>
-          <p className="text-base md:text-lg mt-6 max-w-xl" style={gradientStyle}>
-            Saya bikin website modern, cepat, dan penuh karakter. Bukan template, tapi karya.
-          </p>
-        </AnimatedText>
+          <AnimatedText delay={0.2}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight" style={gradientStyle}>
+              Halo, Saya Ammar Fir
+            </h1>
+          </AnimatedText>
 
-        <AnimatedText delay={0.4}>
-          <div className="mt-6 flex items-center gap-3 text-sm md:text-base font-medium text-white/70">
-            <span>Built with</span>
-            <Typewriter words={words} delay={0.5} className="text-cyan-400 font-semibold" />
-          </div>
-        </AnimatedText>
-      </div>
+          <AnimatedText delay={0.3}>
+            <p className="text-base md:text-lg mt-6 max-w-xl" style={gradientStyle}>
+              Saya bikin website modern, cepat, dan penuh karakter. Bukan template, tapi karya.
+            </p>
+          </AnimatedText>
 
-      {/* Kanan: Spiral Text (DEBUG: fixed size box just to verify geometry in Step 5.2) */}
-      <div className="relative z-10 mt-10 md:mt-0 md:absolute md:right-10 lg:right-20 top-1/2 md:-translate-y-1/2 w-[600px] h-[600px] max-w-full bg-red-500/30">
-        <SpiralText />
+          <AnimatedText delay={0.4}>
+            <div className="mt-6 flex items-center gap-3 text-sm md:text-base font-medium text-white/70">
+              <span>Built with</span>
+              <Typewriter words={words} delay={0.5} className="text-cyan-400 font-semibold" />
+            </div>
+          </AnimatedText>
+        </div>
+
+        {/* Kanan: spacer kosong, biar teks kiri tetap di kolom kiri secara grid */}
+        <div aria-hidden="true" />
       </div>
     </main>
   );
