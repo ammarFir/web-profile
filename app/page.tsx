@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import SpiralText from "./components/SpiralText";
 import AnimatedText from "./components/AnimatedText";
 import Typewriter from "./components/TypeWriter";
 import PulseDot from "./components/PulseDot";
+import SimpleCircle from "./components/SimpleCircle";
 
 export default function Home() {
   const [mouseX, setMouseX] = useState(50);
@@ -42,21 +42,12 @@ export default function Home() {
       {/* Split background: putih di kiri, abu di kanan (mengikuti pembagian grid) */}
       <div className="absolute inset-0 -z-10 hidden md:grid md:grid-cols-2">
         <div className="bg-white" />
-        <div className="bg-neutral-800" />
+       <div className="bg-[#232323]" />
       </div>
       <div className="absolute inset-0 -z-10 md:hidden bg-neutral-800" />
 
-      {/* Efek Glow */}
-      <div className="absolute w-[600px] h-[600px] bg-cyan-500 rounded-full blur-[200px] opacity-30 animate-pulse -top-40 -right-40"></div>
-      <div className="absolute w-[500px] h-[500px] bg-purple-600 rounded-full blur-[200px] opacity-20 animate-pulse -bottom-40 -left-40"></div>
-
-      {/* Spiral Text - anchored to top-right corner of the page, bleeding off both edges */}
-     {/* Spiral Text - centered within the right (gray) half, with slight bleed off top/right edges */}
-<div className="absolute inset-y-0 right-0 w-full md:w-1/2 pointer-events-none flex items-center justify-center overflow-hidden">
-  <div className="relative w-[500px] h-[500px] md:w-[800px] md:h-[800px] -translate-y-6 md:translate-x-0 md:-translate-y-0">
-    <SpiralText   ringCount={22}/>
-  </div>
-</div>
+     
+      <SimpleCircle size={60} fontSize={8 }/>
 
       {/* Grid 2 kolom: kiri teks, kanan spacer kosong */}
       <div className="relative z-10 min-h-screen grid grid-cols-1 md:grid-cols-2 items-center px-6 md:px-12 lg:px-20 gap-10">

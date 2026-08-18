@@ -56,3 +56,31 @@ body {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
+@keyframes spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-ccw {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.ring-spin-cw {
+  animation: spin-cw linear infinite;
+}
+
+.ring-spin-ccw {
+  animation: spin-ccw linear infinite;
+}
