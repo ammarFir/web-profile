@@ -44,15 +44,28 @@ const words = [
 
 export default function ProfilePage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const charElementsRef = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    // ==========================================
+    // 🎯 SETTING DI SINI BRO!
+    // ==========================================
+    const CONFIG = {
+      coreRadius: 50,              // 🔥 Radius circle inti (pasti hilang total)
+      maxEffectRadius: 180,         // 🔥 Jarak maksimal efek random (lebih dari ini = aman)
+      maxProbability: 0.85,         // 🔥 Probability Maksimal di pinggir circle (15% = jarang hilang)
+      // Probability akan berkurang secara halus dari maxProbability → 0
+      // Tidak ada zone kaku, tapi gradasi smooth berdasarkan jarak
+    };
+
     const generateText = () => {
       container.innerHTML = "";
+      charElementsRef.current = [];
 
-      const fontSize = 7;
+      const fontSize = 9;
       const gap = 3;
       const wordLength = 8;
       const charWidth = fontSize * 0.55;
@@ -81,25 +94,38 @@ export default function ProfilePage() {
           width: 100%;
         `;
 
-        // Mulai dari -5 biar ga ada space kosong di kiri
         for (let j = -5; j < cols; j++) {
           const word = words[Math.floor(Math.random() * words.length)];
-          const span = document.createElement("span");
-          span.className = "matrix-word";
-          span.style.cssText = `
-            font-size: ${fontSize}px;
-            opacity: 1;
-            color: #222222;
-            font-family: monospace;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            user-select: none;
-            pointer-events: none;
-            line-height: 1;
+          
+          const chars = word.split('');
+          
+          const wordContainer = document.createElement("span");
+          wordContainer.style.cssText = `
+            display: inline-flex;
+            gap: 0px;
             flex-shrink: 0;
+            letter-spacing: 0.5px;
           `;
-          span.textContent = word;
-          rowDiv.appendChild(span);
+          
+          chars.forEach((char) => {
+            const span = document.createElement("span");
+            span.className = "matrix-char";
+            span.style.cssText = `
+              font-size: ${fontSize}px;
+              visibility: visible;
+              color: #222222;
+              font-family: monospace;
+              user-select: none;
+              pointer-events: none;
+              line-height: 1;
+              display: inline-block;
+            `;
+            span.textContent = char;
+            wordContainer.appendChild(span);
+            charElementsRef.current.push(span);
+          });
+          
+          rowDiv.appendChild(wordContainer);
         }
 
         fragment.appendChild(rowDiv);
@@ -107,7 +133,7 @@ export default function ProfilePage() {
 
       container.appendChild(fragment);
 
-      const elements = container.querySelectorAll(".matrix-word");
+      const elements = container.querySelectorAll(".matrix-char");
       const interval = setInterval(() => {
         elements.forEach((el) => {
           const originalText = el.getAttribute("data-original") || el.textContent || "";
@@ -117,52 +143,122 @@ export default function ProfilePage() {
           }
 
           const original = el.getAttribute("data-original") || "";
-          const chars = original.split("");
-
-          const changes = Math.random() < 0.25 ? 2 : 1;
-          const indices: number[] = [];
-          for (let i = 0; i < changes; i++) {
-            let idx;
-            do {
-              idx = Math.floor(Math.random() * chars.length);
-            } while (indices.includes(idx) && chars.length > 1);
-            if (chars.length > 1 && !indices.includes(idx)) {
-              indices.push(idx);
-            }
-          }
-
-          indices.forEach((idx) => {
-            const char = chars[idx].toLowerCase();
+          
+          if (Math.random() < 0.3) {
+            const char = original.toLowerCase();
             const alternatives = leetMap[char] || [char.toUpperCase()];
-            chars[idx] = alternatives[Math.floor(Math.random() * alternatives.length)];
-          });
-
-          el.textContent = chars.join("");
+            el.textContent = alternatives[Math.floor(Math.random() * alternatives.length)];
+          } else {
+            el.textContent = original;
+          }
         });
       }, 300);
 
       return () => clearInterval(interval);
     };
 
+    // ==========================================
+    // 🔥 EFEK CURSOR - SMOOTH PROBABILITY (NATURAL)
+    // ==========================================
+    let mouseX = -9999;
+    let mouseY = -9999;
+    let isMouseOver = false;
+    
+    const updateVisibility = () => {
+      if (!isMouseOver) {
+        // Reset semua ke visible kalau mouse keluar
+        charElementsRef.current.forEach((el) => {
+          el.style.visibility = 'visible';
+        });
+        return;
+      }
+      
+      const rect = container.getBoundingClientRect();
+      
+      charElementsRef.current.forEach((el) => {
+        const elRect = el.getBoundingClientRect();
+        const elX = elRect.left - rect.left + elRect.width / 2;
+        const elY = elRect.top - rect.top + elRect.height / 2;
+        
+        const dx = elX - mouseX;
+        const dy = elY - mouseY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // ZONA 1: CIRCLE INTI (PASTI HILANG)
+        if (distance < CONFIG.coreRadius) {
+          el.style.visibility = 'hidden';
+          return;
+        }
+        
+        // ZONA 2: SMOOTH PROBABILITY (NATURAL GRADATION)
+        // Hitung probability berdasarkan jarak secara smooth
+        let hideProbability = 0;
+        
+        if (distance < CONFIG.maxEffectRadius) {
+          // Normalisasi jarak: 0 (di pinggir circle) sampai 1 (di maxEffectRadius)
+          const normalizedDistance = (distance - CONFIG.coreRadius) / (CONFIG.maxEffectRadius - CONFIG.coreRadius);
+          
+          // Probability berkurang secara smooth (easing)
+          // Dari maxProbability (dekat circle) → 0 (di maxEffectRadius)
+          hideProbability = CONFIG.maxProbability * Math.pow(1 - normalizedDistance, 2);
+          
+          // Atau bisa pakai easing lain:
+          // hideProbability = CONFIG.maxProbability * (1 - normalizedDistance); // Linear
+          // hideProbability = CONFIG.maxProbability * Math.pow(1 - normalizedDistance, 3); // Cubic (lebih cepat hilang)
+          // hideProbability = CONFIG.maxProbability * Math.sqrt(1 - normalizedDistance); // Square root (lebih lambat hilang)
+        }
+        
+        // Random check untuk visibility
+        if (Math.random() < hideProbability) {
+          el.style.visibility = 'hidden';
+        } else {
+          el.style.visibility = 'visible';
+        }
+      });
+    };
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+      isMouseOver = true;
+      
+      // Panggil updateVisibility langsung setiap mouse move
+      updateVisibility();
+    };
+
+    const handleMouseLeave = () => {
+      isMouseOver = false;
+      mouseX = -9999;
+      mouseY = -9999;
+      
+      // Reset semua ke visible
+      charElementsRef.current.forEach((el) => {
+        el.style.visibility = 'visible';
+      });
+    };
+
     const timeout = setTimeout(generateText, 50);
     window.addEventListener("resize", generateText);
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       clearTimeout(timeout);
       window.removeEventListener("resize", generateText);
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
   return (
     <main className="relative min-h-screen w-screen flex flex-col items-center justify-center px-4 overflow-hidden" style={{ background: "#181818" }}>
-      {/* BACKGROUND RANDOM TEXT - FULL LAYAR */}
       <div
         ref={containerRef}
         className="absolute inset-0 z-0 w-full h-full overflow-hidden"
         style={{ left: 0, right: 0, top: 0, bottom: 0 }}
       />
 
-      {/* KONTEN UTAMA */}
       <div className="relative z-10 text-center max-w-2xl">
         <AnimatedText delay={0.1}>
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6">
