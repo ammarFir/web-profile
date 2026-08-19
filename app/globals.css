@@ -46,41 +46,30 @@ body {
 }
 
 .ring-spin-cw {
-  animation-name: spin-cw;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.ring-spin-ccw {
-  animation-name: spin-ccw;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-@keyframes spin-cw {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes spin-ccw {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(-360deg);
-  }
-}
-
-.ring-spin-cw {
   animation: spin-cw linear infinite;
 }
 
 .ring-spin-ccw {
   animation: spin-ccw linear infinite;
+}
+
+@keyframes letter-flicker {
+
+  0%,
+  88%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+
+  90%,
+  91% {
+    opacity: 0;
+  }
+}
+
+.flicker-letter {
+  animation-name: letter-flicker;
+  animation-timing-function: steps(1);
+  animation-iteration-count: infinite;
 }

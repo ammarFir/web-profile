@@ -9,6 +9,10 @@ import SimpleCircle from "./components/SimpleCircle";
 export default function Home() {
   const [mouseX, setMouseX] = useState(50);
   const [mouseY, setMouseY] = useState(50);
+    // Single source of truth: change this and both the wrapper div and
+  // SimpleCircle's size prop stay in sync automatically.
+  const CIRCLE_SIZE = 80;
+  const CIRCLE_FONT_SIZE = 8  ;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -42,12 +46,21 @@ export default function Home() {
       {/* Split background: putih di kiri, abu di kanan (mengikuti pembagian grid) */}
       <div className="absolute inset-0 -z-10 hidden md:grid md:grid-cols-2">
         <div className="bg-white" />
-       <div className="bg-[#232323]" />
+        <div className="bg-[#232323]" />
       </div>
       <div className="absolute inset-0 -z-10 md:hidden bg-neutral-800" />
 
-     
-      <SimpleCircle size={60} fontSize={8 }/>
+      {/* Spiral: dicenter tepat di tengah separuh kanan layar */}
+<div className="absolute inset-y-0 right-0 w-full md:w-1/2 flex items-center justify-center pointer-events-none">
+  <div style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}>
+  <SimpleCircle
+  size={CIRCLE_SIZE}
+  fontSize={CIRCLE_FONT_SIZE}
+  dotGapMultiplier={3}
+  letterSpacing={1.5}
+/>
+</div>
+</div>
 
       {/* Grid 2 kolom: kiri teks, kanan spacer kosong */}
       <div className="relative z-10 min-h-screen grid grid-cols-1 md:grid-cols-2 items-center px-6 md:px-12 lg:px-20 gap-10">
