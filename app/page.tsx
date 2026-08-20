@@ -9,10 +9,12 @@ import SimpleCircle from "./components/SimpleCircle";
 export default function Home() {
   const [mouseX, setMouseX] = useState(50);
   const [mouseY, setMouseY] = useState(50);
-    // Single source of truth: change this and both the wrapper div and
+  const [isHoveringLeft, setIsHoveringLeft] = useState(false);
+  
+  // Single source of truth: change this and both the wrapper div and
   // SimpleCircle's size prop stay in sync automatically.
   const CIRCLE_SIZE = 80;
-  const CIRCLE_FONT_SIZE = 8  ;
+  const CIRCLE_FONT_SIZE = 8;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -20,10 +22,18 @@ export default function Home() {
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     setMouseX(x);
     setMouseY(y);
+    setIsHoveringLeft(true);
   };
 
+  const handleMouseLeave = () => {
+    setIsHoveringLeft(false);
+  };
+
+  // Gradient hanya aktif ketika hover di kiri
   const gradientStyle = {
-    backgroundImage: `radial-gradient(circle at ${mouseX}% ${mouseY}%, cyan, #6366f1, purple)`,
+    backgroundImage: isHoveringLeft
+      ? `radial-gradient(circle at ${mouseX}% ${mouseY}%, cyan, #6366f1, purple)`
+      : `radial-gradient(circle at 50% 50%, cyan, #6366f1, purple)`, // Default position
     backgroundClip: "text",
     WebkitBackgroundClip: "text",
     color: "transparent",
@@ -39,10 +49,7 @@ export default function Home() {
   ];
 
   return (
-    <main
-      onMouseMove={handleMouseMove}
-      className="relative min-h-screen overflow-hidden cursor-default"
-    >
+    <main className="relative min-h-screen overflow-hidden cursor-default">
       {/* Split background: putih di kiri, abu di kanan (mengikuti pembagian grid) */}
       <div className="absolute inset-0 -z-10 hidden md:grid md:grid-cols-2">
         <div className="bg-white" />
@@ -51,21 +58,28 @@ export default function Home() {
       <div className="absolute inset-0 -z-10 md:hidden bg-neutral-800" />
 
       {/* Spiral: dicenter tepat di tengah separuh kanan layar */}
-<div className="absolute inset-y-0 right-0 w-full md:w-1/2 flex items-center justify-center pointer-events-none">
-  <div style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}>
-  <SimpleCircle
-  size={CIRCLE_SIZE}
-  fontSize={CIRCLE_FONT_SIZE}
-  dotGapMultiplier={3}
-  letterSpacing={1.5}
-/>
-</div>
-</div>
+      <div className="absolute inset-y-0 right-0 w-full md:w-1/2 flex items-center justify-center pointer-events-none">
+        <div style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}>
+          <SimpleCircle
+            size={CIRCLE_SIZE}
+            fontSize={CIRCLE_FONT_SIZE}
+            dotGapMultiplier={3}
+            letterSpacing={1.5}
+          />
+        </div>
+      </div>
+
+      {/* Area kiri full-height untuk mouse tracking */}
+      <div
+        className="absolute inset-y-0 left-0 w-full md:w-1/2 z-10"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      />
 
       {/* Grid 2 kolom: kiri teks, kanan spacer kosong */}
-      <div className="relative z-10 min-h-screen grid grid-cols-1 md:grid-cols-2 items-center px-6 md:px-12 lg:px-20 gap-10">
+      <div className="relative z-20 min-h-screen grid grid-cols-1 md:grid-cols-2 items-center px-6 md:px-12 lg:px-20 gap-10 pointer-events-none">
         {/* Kiri: Teks */}
-        <div className="flex flex-col items-start justify-center text-left">
+        <div className="flex flex-col items-start justify-center text-left pointer-events-auto">
           <AnimatedText delay={0.1}>
             <p className="text-sm md:text-base font-medium tracking-[0.2em] uppercase mb-4 flex items-center gap-2" style={gradientStyle}>
               <PulseDot />
@@ -93,7 +107,7 @@ export default function Home() {
           </AnimatedText>
         </div>
 
-        {/* Kanan: spacer kosong, biar teks kiri tetap di kolom kiri secara grid */}
+        {/* Kanan: spacer kosong */}
         <div aria-hidden="true" />
       </div>
     </main>
